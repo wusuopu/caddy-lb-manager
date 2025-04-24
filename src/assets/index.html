@@ -3,26 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Git自动多仓库同步</title>
-  <script src="https://unpkg.com/jquery@3.7.1/dist/jquery.js"></script>
-  {{if eq .debug true}}
-    <script src="https://unpkg.com/vue@3.4.19/dist/vue.global.js"></script>
-    <script src="https://unpkg.com/vuex@4.1.0/dist/vuex.global.js"></script>
-    <script src="https://unpkg.com/vue-router@4.2.5/dist/vue-router.global.js"></script>
-  {{else}}
-    <script src="https://unpkg.com/vue@3.4.19/dist/vue.global.prod.js"></script>
-    <script src="https://unpkg.com/vuex@4.1.0/dist/vuex.global.prod.js"></script>
-    <script src="https://unpkg.com/vue-router@4.2.5/dist/vue-router.global.prod.js"></script>
-  {{end}}
-  <script src="https://unpkg.com/axios@1.6.7/dist/axios.min.js"></script>
-  <script src="https://unpkg.com/lodash@4.17.21/lodash.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.6.2/dist/full.min.css" rel="stylesheet" type="text/css" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="/statics/js/main.js?t={{.version}}"></script>
+  <title>Caddy LoadBalancer Manager</title>
+  <link rel="stylesheet" href="/statics/vendor/css/element-plus.min.css" />
+  <script src="/statics/vendor/js/axios.min.js"></script>
+  <script src="/statics/vendor/js/tailwindcss-3.4.5.js"></script>
 </head>
 <body>
-  <div id="app" class="mx-[auto] max-w-[1300px]">
-    <router-view />
-  </div>
+  <script type="importmap">
+    {{if eq .debug true}}
+    {
+      "imports": {
+        "vue": "/statics/vendor/js/vue@3.5.13.esm-browser.js",
+        "vue-router": "/statics/vendor/js/vue-router@4.5.0.esm-browser.prod.js",
+        "element-plus": "/statics/vendor/js/element-plus@2.9.8.full.mjs",
+        "@element-plus/icons-vue": "/statics/vendor/js/element-plus-icons-vue@2.3.1.js"
+      }
+    }
+    {{else}}
+    {
+      "imports": {
+        "vue": "/statics/vendor/js/vue@3.5.13.esm-browser.prod.js",
+        "vue-router": "/statics/vendor/js/vue-router@4.5.0.esm-browser.prod.js",
+        "element-plus": "/statics/vendor/js/element-plus@2.9.8.full.min.mjs",
+        "@element-plus/icons-vue": "/statics/vendor/js/element-plus-icons-vue@2.3.1.min.js"
+      }
+    }
+    {{end}}
+  </script>
+
+  <div id="app"></div>
+  <script>
+    window._webui_config = {
+      debug: {{.debug}},
+      version: {{.version}}
+    };
+  </script>
+
+  <script type="module" src="/statics/js/main.js?t={{.t}}"></script>
 </body>
 </html>

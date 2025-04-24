@@ -22,6 +22,7 @@ func Load() IConfig {
 		Config = IConfig{
 			"PORT": PORT,
 			"GO_ENV": GO_ENV,
+			"VERSION": "0.1.0",
 		}
 	}
 	return Config

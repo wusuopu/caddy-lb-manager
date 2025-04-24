@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"app/config"
 	"app/middlewares"
 	"time"
 
@@ -14,9 +15,11 @@ func Init(router *gin.RouterGroup, engine *gin.Engine) {
 
 	// engine.StaticFile("/", "./assets/index.html")
 	engine.GET("/", middlewares.BasicAuthMiddleware, func(ctx *gin.Context) {
+		debug := gin.Mode() != gin.ReleaseMode
 		ctx.HTML(200, "index.html", gin.H{
-			"debug": gin.Mode() != gin.ReleaseMode,
-			"version": time.Now().Unix(),
+			"debug": debug,
+			"version": config.Config["VERSION"],
+			"t": time.Now().Unix(),
 		})
 	})
 
