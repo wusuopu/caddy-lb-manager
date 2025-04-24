@@ -1,0 +1,14 @@
+.git/
+.gitignore
+.dockerignore
+Dockerfile
+docker-compose.yml
+
+.vscode
+src/.env
+src/tmp/
+src/notes/
+src/app
+src/goose
+src/data/
+tmp/
