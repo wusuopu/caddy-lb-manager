@@ -1,15 +1,17 @@
 package initialize
 
 import (
+	"app/config"
 	"app/middlewares"
 	"app/routes"
+	"embed"
 	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/itchyny/timefmt-go"
 )
 
-func InitRoutes(e *gin.Engine) {
+func InitRoutes(e *gin.Engine, embededFiles embed.FS) {
 	e.Use(gin.LoggerWithFormatter(func (param gin.LogFormatterParams) string {
 		headers := "{"
 		for k, v := range param.Request.Header {
@@ -35,6 +37,6 @@ func InitRoutes(e *gin.Engine) {
 	}))
 	e.Use(middlewares.ErrorHandleMiddlewareFactory())
 
-	v1 := e.Group("/api/v1", middlewares.BasicAuthMiddleware, middlewares.RawBodyMiddleware)
-	routes.Init(v1, e)
+	v1 := e.Group(config.Config.Server.BaseUrl + "/api/v1", middlewares.BasicAuthMiddleware, middlewares.RawBodyMiddleware)
+	routes.Init(v1, e, embededFiles)
 }

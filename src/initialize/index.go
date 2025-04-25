@@ -2,11 +2,12 @@ package initialize
 
 import (
 	"app/config"
+	"embed"
 
 	"github.com/gin-gonic/gin"
 )
 
-func commonInit(e *gin.Engine) *gin.Engine {
+func commonInit(e *gin.Engine, embededFiles embed.FS) *gin.Engine {
 	InitServices()
 
 	var engine *gin.Engine
@@ -17,24 +18,28 @@ func commonInit(e *gin.Engine) *gin.Engine {
 	}
 	InitDB()
 	InitLogger()
-	InitRoutes(engine)
+	InitRoutes(engine, embededFiles)
 	return engine
 }
 
-func Init(e *gin.Engine) *gin.Engine {
+func Init(e *gin.Engine, embededFiles embed.FS) *gin.Engine {
 	// 先加载 .env 文件
 	InitEnv()
 	config.Load()
 
-	return commonInit(e)
+	if config.Config.Server.GO_ENV == "production" {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
+	return commonInit(e, embededFiles)
 }
 
-func InitTest(e *gin.Engine) *gin.Engine {
+func InitTest(e *gin.Engine, embededFiles embed.FS) *gin.Engine {
 	// 先加载 .env.test 文件
 	InitEnv(".env.test")
 	config.Load()
-	config.Config["GO_ENV"] = "test"
+	config.Config.Server.GO_ENV = "test"
 
 	gin.SetMode(gin.TestMode)
-	return commonInit(e)
+	return commonInit(e, embededFiles)
 }

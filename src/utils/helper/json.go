@@ -172,3 +172,11 @@ func GetJSONString(val *fastjson.Value, keys string) string {
 	}
 	return ret
 }
+
+func GetJSONBool(val *fastjson.Value, keys string) (bool) {
+	v := GetJSONItem(val, keys)
+	if v.Type() == fastjson.TypeTrue {
+		return true
+	}
+	return false
+}

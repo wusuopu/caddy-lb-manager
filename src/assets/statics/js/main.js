@@ -6,6 +6,7 @@ import ServerListPage from './pages/server.js'
 import RoutesListPage from './pages/route.js'
 import UpstreamListPage from './pages/upstream.js'
 import CertificateListPage from './pages/certificates.js'
+import CaddyfilePage from './pages/caddyfile.js'
 
 const app = createApp({
   data () {
@@ -17,11 +18,12 @@ const app = createApp({
         <div class="w-full max-w-[1200px] mx-auto text-[#6e7687] font-bold text-2xl">
           <p>Caddy LoadBalancer Manager</p>
 
-          <el-menu mode="horizontal" :router="true">
-            <el-menu-item index="/">Dashboard</el-menu-item>
-            <el-menu-item index="/servers">Servers</el-menu-item>
-            <el-menu-item index="/upstreams">Upstreams</el-menu-item>
-            <el-menu-item index="/certificates">SSL Certificates</el-menu-item>
+          <el-menu mode="horizontal" :router="true" :default-active="$route.name">
+            <el-menu-item index="Home" route="/">Dashboard</el-menu-item>
+            <el-menu-item index="Servers" route="/servers">Servers</el-menu-item>
+            <el-menu-item index="Routes" route="/upstreams">Upstreams</el-menu-item>
+            <el-menu-item index="Upstreams" route="/certificates">SSL Certificates</el-menu-item>
+            <el-menu-item index="Caddyfile" route="/caddyfile">Caddyfile</el-menu-item>
           </el-menu>
         </div>
       </el-header>
@@ -70,6 +72,11 @@ const router = createRouter({
       path: '/certificates',
       name: 'Certificates',
       component: CertificateListPage,
+    },
+    {
+      path: '/caddyfile',
+      name: 'Caddyfile',
+      component: CaddyfilePage,
     },
     {
       path: '/:pathMatch(.*)*',

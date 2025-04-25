@@ -4,6 +4,7 @@ import (
 	"app/config"
 	"app/initialize"
 	"context"
+	"embed"
 	"log"
 	"net/http"
 	"os"
@@ -14,14 +15,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+//go:embed assets/*
+var embededFiles embed.FS
+
 func main() {
 	e := gin.New()
-	initialize.Init(e)
+	initialize.Init(e, embededFiles)
 
 	if gin.Mode() == gin.ReleaseMode {
 		// 生产模块下实现 gracefully shutdown
 		srv := &http.Server{
-			Addr: ":" + config.Config["PORT"].(string),
+			Addr: ":" + config.Config.Server.Port,
 			Handler: e,
 		}
 		go func() {
@@ -55,6 +59,6 @@ func main() {
 		log.Println("Server exiting")
 	} else {
 		// 开发模式下使用 air 监听变化自动重启
-		e.Run(":" + config.Config["PORT"].(string))
+		e.Run(":" + config.Config.Server.Port)
 	}
 }

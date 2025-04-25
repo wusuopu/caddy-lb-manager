@@ -1,0 +1,9 @@
+.el-drawer {
+  width: 40% !important;
+}
+
+@media screen and (max-width: 768px) {
+  .el-drawer {
+    width: 90% !important;
+  }
+}

@@ -27,7 +27,7 @@ func InitDB() {
 		dialector = sqlite.Open(os.Getenv("DATABASE_DSN"))
 	}
 	lvl := logger.Error
-	if config.Config["GO_ENV"] != "production" {
+	if config.Config.Server.GO_ENV != "production" {
 		lvl = logger.Info
 	}
 	db, err := gorm.Open(dialector, &gorm.Config{

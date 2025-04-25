@@ -4,26 +4,33 @@ import (
 	"os"
 )
 
-type IConfig map[string]interface{}
+type IConfig struct {
+	Server struct {
+		Port		string
+		GO_ENV	string
+		BaseUrl	string
+		Version	string
+	}
+}
 
 var Config IConfig
 
 func Load() IConfig {
-	if Config == nil {
-		PORT := os.Getenv("PORT")
-		GO_ENV := os.Getenv("GO_ENV")
-		if PORT == "" {
-			PORT = "80"
-		}
-		if GO_ENV == "" {
-			GO_ENV = "development"
-		}
+	Config.Server.Port = os.Getenv("PORT")
+	if Config.Server.Port == "" {
+		Config.Server.Port = "80"
+	}
 
-		Config = IConfig{
-			"PORT": PORT,
-			"GO_ENV": GO_ENV,
-			"VERSION": "0.1.0",
-		}
+	Config.Server.GO_ENV = os.Getenv("GO_ENV")
+	if Config.Server.GO_ENV == "" {
+		Config.Server.GO_ENV = "development"
+	}
+
+	Config.Server.Version = "0.1.0"
+
+	Config.Server.BaseUrl = os.Getenv("WEBUI_BASE_URL")
+	if Config.Server.BaseUrl == "/" {
+		Config.Server.BaseUrl = ""
 	}
 	return Config
 }

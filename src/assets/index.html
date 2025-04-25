@@ -4,28 +4,31 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Caddy LoadBalancer Manager</title>
-  <link rel="stylesheet" href="/statics/vendor/css/element-plus.min.css" />
-  <script src="/statics/vendor/js/axios.min.js"></script>
-  <script src="/statics/vendor/js/tailwindcss-3.4.5.js"></script>
+  <link rel="stylesheet" href="{{.base_url}}/statics/vendor/css/element-plus.min.css" />
+  <link rel="stylesheet" href="{{.base_url}}/statics/css/main.css?t={{.t}}" />
+  <script src="{{.base_url}}/statics/vendor/js/axios.min.js"></script>
+  <script src="{{.base_url}}/statics/vendor/js/moment.js"></script>
+  <script src="{{.base_url}}/statics/vendor/js/lodash-4.17.21.js"></script>
+  <script src="{{.base_url}}/statics/vendor/js/tailwindcss-3.4.5.js"></script>
 </head>
 <body>
   <script type="importmap">
     {{if eq .debug true}}
     {
       "imports": {
-        "vue": "/statics/vendor/js/vue@3.5.13.esm-browser.js",
-        "vue-router": "/statics/vendor/js/vue-router@4.5.0.esm-browser.prod.js",
-        "element-plus": "/statics/vendor/js/element-plus@2.9.8.full.mjs",
-        "@element-plus/icons-vue": "/statics/vendor/js/element-plus-icons-vue@2.3.1.js"
+        "vue": "{{.base_url}}/statics/vendor/js/vue@3.5.13.esm-browser.js",
+        "vue-router": "{{.base_url}}/statics/vendor/js/vue-router@4.5.0.esm-browser.prod.js",
+        "element-plus": "{{.base_url}}/statics/vendor/js/element-plus@2.9.8.full.mjs",
+        "@element-plus/icons-vue": "{{.base_url}}/statics/vendor/js/element-plus-icons-vue@2.3.1.js"
       }
     }
     {{else}}
     {
       "imports": {
-        "vue": "/statics/vendor/js/vue@3.5.13.esm-browser.prod.js",
-        "vue-router": "/statics/vendor/js/vue-router@4.5.0.esm-browser.prod.js",
-        "element-plus": "/statics/vendor/js/element-plus@2.9.8.full.min.mjs",
-        "@element-plus/icons-vue": "/statics/vendor/js/element-plus-icons-vue@2.3.1.min.js"
+        "vue": "{{.base_url}}/statics/vendor/js/vue@3.5.13.esm-browser.prod.js",
+        "vue-router": "{{.base_url}}/statics/vendor/js/vue-router@4.5.0.esm-browser.prod.js",
+        "element-plus": "{{.base_url}}/statics/vendor/js/element-plus@2.9.8.full.min.mjs",
+        "@element-plus/icons-vue": "{{.base_url}}/statics/vendor/js/element-plus-icons-vue@2.3.1.min.js"
       }
     }
     {{end}}
@@ -35,10 +38,11 @@
   <script>
     window._webui_config = {
       debug: {{.debug}},
-      version: {{.version}}
+      version: {{.version}},
+      base_url: "{{.base_url}}",
     };
   </script>
 
-  <script type="module" src="/statics/js/main.js?t={{.t}}"></script>
+  <script type="module" src="{{.base_url}}/statics/js/main.js?t={{.t}}"></script>
 </body>
 </html>
