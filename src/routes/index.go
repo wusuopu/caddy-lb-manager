@@ -52,4 +52,5 @@ func Init(router *gin.RouterGroup, engine *gin.Engine, embededFiles embed.FS) {
 	InitServer(serverGroup)
 	InitRoute(serverGroup)
 	InitUpstream(router.Group("/upstreams"))
+	InitCaddyfile(router.Group("/caddyfile"))
 }

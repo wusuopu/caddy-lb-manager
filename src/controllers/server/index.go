@@ -74,7 +74,7 @@ func Delete(ctx *gin.Context) {
 		return
 	}
 
-	results = di.Container.DB.Delete(&obj)
+	results = di.Container.DB.Unscoped().Delete(&obj)
 	if results.Error != nil {
 		schemas.MakeErrorResponse(ctx, results.Error, 500)
 		return

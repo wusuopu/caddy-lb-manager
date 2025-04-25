@@ -11,6 +11,12 @@ type IConfig struct {
 		BaseUrl	string
 		Version	string
 	}
+	Caddy struct {
+		BinPath		string
+		DataPath	string
+		ReloadCMD	string
+		TLSEmail	string
+	}
 }
 
 var Config IConfig
@@ -32,5 +38,21 @@ func Load() IConfig {
 	if Config.Server.BaseUrl == "/" {
 		Config.Server.BaseUrl = ""
 	}
+
+	// Caddy 配置
+	Config.Caddy.BinPath = os.Getenv("CADDY_DATA_PATH")
+	if Config.Caddy.BinPath == "" {
+		Config.Caddy.BinPath = "caddy"
+	}
+
+	Config.Caddy.DataPath = os.Getenv("CADDY_DATA_PATH")
+	if Config.Caddy.DataPath == "" {
+		Config.Caddy.DataPath = "/data/caddy"
+	}
+
+	Config.Caddy.ReloadCMD = os.Getenv("CADDY_RELOAD_CMD")
+
+	Config.Caddy.TLSEmail = os.Getenv("CADDY_TLS_EMAIL")
+
 	return Config
 }

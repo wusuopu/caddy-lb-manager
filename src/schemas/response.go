@@ -26,8 +26,12 @@ func MakeResponse(ctx *gin.Context, data any, pagination *helper.Pagination) {
 }
 
 func MakeErrorResponse(ctx *gin.Context, err any, status int) {
-	body := ResponseBody{
-		Error: err,
+	body := ResponseBody{}
+	switch err.(type) {
+		default:
+			body.Error = err
+		case error:
+			body.Error = err.(error).Error()
 	}
 	ctx.JSON(status, body)
 }
