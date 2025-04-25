@@ -9,7 +9,6 @@ import (
 func InitUpstream(r *gin.RouterGroup) {
 	r.GET("/", upstream.Index)
 	r.POST("/", upstream.Create)
-	r.GET("/:upstreamId", upstream.Show)
-	r.PUT("/:upstreamId", upstream.Update)
-	r.DELETE("/:upstreamId", upstream.Delete)
+	r.PUT("/:id", upstream.Update)
+	r.DELETE("/:id", upstream.Delete)
 }

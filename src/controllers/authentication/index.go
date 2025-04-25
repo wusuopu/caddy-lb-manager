@@ -26,12 +26,17 @@ func Index(ctx *gin.Context) {
 }
 
 func Create(ctx *gin.Context) {
-	body := helper.GetJSONBody(ctx)
+	var parser helper.JSONParser
+	parser.GetJSONBody(ctx)
+
+	name, _ := parser.GetJSONString("Name")
+	username, _ := parser.GetJSONString("Username")
+	password, _ := parser.GetJSONString("Password")
 
 	obj := models.Authentication{
-		Name: helper.GetJSONString(body, "Name"),
-		Username: helper.GetJSONString(body, "Username"),
-		Password: helper.GetJSONString(body, "Password"),
+		Name: name,
+		Username: username,
+		Password: password,
 	}
 	hashedPassword, err := di.Service.CaddyfileService.HashPassword(obj.Password)
 	if err != nil {
@@ -61,10 +66,16 @@ func Update(ctx *gin.Context) {
 		return
 	}
 
-	body := helper.GetJSONBody(ctx)
-	obj.Name = helper.GetJSONString(body, "Name")
-	obj.Username = helper.GetJSONString(body, "Username")
-	obj.Password = helper.GetJSONString(body, "Password")
+	var parser helper.JSONParser
+	parser.GetJSONBody(ctx)
+
+	name, _ := parser.GetJSONString("Name")
+	username, _ := parser.GetJSONString("Username")
+	password, _ := parser.GetJSONString("Password")
+
+	obj.Name = name
+	obj.Username = username
+	obj.Password = password
 
 	hashedPassword, err := di.Service.CaddyfileService.HashPassword(obj.Password)
 	if err != nil {

@@ -10,22 +10,20 @@ import (
 	"github.com/valyala/fastjson"
 )
 
-var pPool fastjson.ParserPool
-var aPool fastjson.ArenaPool
+type JSONParser struct {
+	Value *fastjson.Value
+}
 /*
 	动态解析 body 为 json
 */
-func GetJSONBody(c *gin.Context) *fastjson.Value  {
-	a := aPool.Get()
-	p := pPool.Get()
-	defer func ()  {
-		aPool.Put(a)
-		pPool.Put(p)
-	}()
+func (parser *JSONParser) GetJSONBody(c *gin.Context) *fastjson.Value {
+	var a fastjson.Arena
+	var p fastjson.Parser
 
 	body, ok := c.Get("body")
 	if ok {
-		return body.(*fastjson.Value)
+		parser.Value = body.(*fastjson.Value)
+		return parser.Value
 	}
 	empty := a.NewObject()
 
@@ -33,7 +31,7 @@ func GetJSONBody(c *gin.Context) *fastjson.Value  {
 	if rawBody == nil {
 		return empty
 	}
-	maxLength := 1024 * 1024 * 2		// 最大支持 2M 长度字符，以免内存不足 
+	maxLength := 1024 * 1024 * 4		// 最大支持 4M 长度字符，以免内存不足 
 	data, _ := rawBody.([]byte)
 	ret, err := p.ParseBytes(data[:min(len(data), maxLength)])
 	if err != nil {
@@ -42,26 +40,26 @@ func GetJSONBody(c *gin.Context) *fastjson.Value  {
 	// 将解析结果缓存下来
 	c.Set("body", ret)
 
-	return ret
+	parser.Value = ret
+	return parser.Value
 }
 /*
 	动态解析 url query 为 json
 */
-func GetJSONQuery(c *gin.Context) *fastjson.Value {
-	body, ok := c.Get("query")
+func (parser *JSONParser) GetJSONQuery(c *gin.Context) *fastjson.Value {
+	query, ok := c.Get("query")
 	if ok {
-		return body.(*fastjson.Value)
+		parser.Value = query.(*fastjson.Value)
+		return parser.Value
 	}
 
-	obj := ParseJSONQuery(c.Request.URL.RawQuery)
+	obj := parser.ParseJSONQuery(c.Request.URL.RawQuery)
 	c.Set("query", obj)
-	return obj
+	parser.Value = obj
+	return parser.Value
 }
-func ParseJSONQuery(qs string) *fastjson.Value {
-	a := aPool.Get()
-	defer func ()  {
-		aPool.Put(a)
-	}()
+func (parser *JSONParser) ParseJSONQuery(qs string) *fastjson.Value {
+	var a fastjson.Arena
 
 	obj := a.NewObject()
 	query, err := url.ParseQuery(qs)
@@ -128,7 +126,8 @@ func ParseJSONQuery(qs string) *fastjson.Value {
 
 
 // lodash 风格的 GET 操作
-func GetJSONInt64(val *fastjson.Value, keys string) (int64, error) {
+func (parser *JSONParser) GetJSONInt64(keys string) (int64, error) {
+	val := parser.Value
 	k := strings.Split(keys, ".")
 	if !val.Exists(k...) {
 		return 0, fmt.Errorf("key %s not exists", keys)
@@ -138,11 +137,16 @@ func GetJSONInt64(val *fastjson.Value, keys string) (int64, error) {
 		return item.Int64()
 	}
 	if item.Type() == fastjson.TypeString {
-		strconv.ParseInt(item.String(), 10, 64)
+		data, err := item.StringBytes()
+		if err != nil {
+			return 0, err
+		}
+		return strconv.ParseInt(string(data), 10, 64)
 	}
 	return 0, fmt.Errorf("key %s in not number", keys)
 }
-func GetJSONFloat64(val *fastjson.Value, keys string) (float64, error) {
+func (parser *JSONParser) GetJSONFloat64(keys string) (float64, error) {
+	val := parser.Value
 	k := strings.Split(keys, ".")
 	if !val.Exists(k...) {
 		return 0, fmt.Errorf("key %s not exists", keys)
@@ -152,31 +156,44 @@ func GetJSONFloat64(val *fastjson.Value, keys string) (float64, error) {
 		return item.Float64()
 	}
 	if item.Type() == fastjson.TypeString {
-		strconv.ParseFloat(item.String(), 64)
+		data, err := item.StringBytes()
+		if err != nil {
+			return 0, err
+		}
+		return strconv.ParseFloat(string(data), 64)
 	}
 	return 0, fmt.Errorf("key %s in not number", keys)
 }
-func GetJSONItem(val *fastjson.Value, keys string) *fastjson.Value {
+// lodash 风格的 get 方法
+func (parser *JSONParser) GetJSONItem(keys string) *fastjson.Value {
+	val := parser.Value
+	if keys == "" {
+		return val
+	}
 	return val.Get(strings.Split(keys, ".")...)
 }
-func GetJSONString(val *fastjson.Value, keys string) string {
-	v := GetJSONItem(val, keys)
+func (parser *JSONParser) GetJSONString(keys string) (string, error) {
+	v := parser.GetJSONItem(keys)
+	if v == nil {
+		return "", fmt.Errorf("key %s not exists", keys)
+	}
 	if v.Type() != fastjson.TypeString {
-		return ""
+		return "", fmt.Errorf("key %s in not string", keys)
 	}
-
-	ret := v.String()
-	ret, err := strconv.Unquote(ret)
+	data, err := v.StringBytes()
 	if err != nil {
-		return ""
+		return "", err
 	}
-	return ret
+	return string(data), nil
 }
 
-func GetJSONBool(val *fastjson.Value, keys string) (bool) {
-	v := GetJSONItem(val, keys)
+func (parser *JSONParser) GetJSONBool(keys string) (bool, error) {
+	v := parser.GetJSONItem(keys)
 	if v.Type() == fastjson.TypeTrue {
-		return true
+		return true, nil
 	}
-	return false
+	if v.Type() == fastjson.TypeFalse {
+		return false, nil
+	}
+	return false, fmt.Errorf("key %s in not bool", keys)
 }

@@ -4,12 +4,16 @@ import (
 	"app/config"
 	"app/di"
 	"app/models"
+	"app/types"
+	"app/utils/helper"
 	"fmt"
 	"io"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
+	"github.com/valyala/fastjson"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -102,4 +106,48 @@ func (c *CaddyfileService) HashPassword (password string) (string, error) {
 	}
 
 	return string(hashedPassword), nil
+}
+func (c *CaddyfileService) ListCertificate() []types.CertificateInfo {
+  var data []types.CertificateInfo
+
+	files, err := filepath.Glob(filepath.Join(config.Config.Caddy.DataPath + "/certificates/**/**/*.json"))
+	if err != nil {
+		return data
+	}
+	for _, f := range files {
+		basename := filepath.Base(f)
+		name := basename[0 : len(basename) - 5]
+
+		var p fastjson.Parser
+		rawData, err := os.ReadFile(f)
+		if err != nil {
+			continue
+		}
+
+		item, err := p.ParseBytes(rawData)
+		if err != nil {
+			continue
+		}
+		var parser helper.JSONParser
+
+		var sans []string
+		_sans := item.GetArray("sans")
+		for _, s := range _sans {
+			parser.Value = s
+			v, _ := parser.GetJSONString("")
+			sans = append(sans, v)
+		}
+		parser.Value = item
+
+		start, _ := parser.GetJSONString("issuer_data.renewal_info._retryAfter")
+		end, _ := parser.GetJSONString("issuer_data.renewal_info.suggestedWindow.end")
+		data = append(data, types.CertificateInfo{
+			Name: name,
+			Sans: sans,
+			ValidityStart: start,
+			ValidityEnd: end,
+
+		})
+	}
+	return data
 }

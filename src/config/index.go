@@ -40,7 +40,7 @@ func Load() IConfig {
 	}
 
 	// Caddy 配置
-	Config.Caddy.BinPath = os.Getenv("CADDY_DATA_PATH")
+	Config.Caddy.BinPath = os.Getenv("CADDY_BIN_PATH")
 	if Config.Caddy.BinPath == "" {
 		Config.Caddy.BinPath = "caddy"
 	}

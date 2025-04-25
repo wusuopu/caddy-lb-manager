@@ -16,7 +16,7 @@ export default {
     async fetchConfig () {
       this.loading = true
       try {
-        const { data } = await axios.get('/api/v1/caddyfile/')
+        const { data } = await axios.get('/api/v1/caddy/config')
         this.content = data.Data
         this.error = ""
       } catch (error) {
@@ -36,7 +36,7 @@ export default {
 
       this.loading = true
       try {
-        await axios.post('/api/v1/caddyfile/reload')
+        await axios.post('/api/v1/caddy/reload')
         this.error = ""
       } catch (error) {
         this.error = error.response.data.Error

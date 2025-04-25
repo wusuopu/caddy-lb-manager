@@ -32,3 +32,8 @@ func Reload(ctx *gin.Context) {
 
 	schemas.MakeResponse(ctx, nil, nil)
 }
+
+func ListCertificate(ctx *gin.Context) {
+	data := di.Service.CaddyfileService.ListCertificate()
+	schemas.MakeResponse(ctx, data, nil)
+}

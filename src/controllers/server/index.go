@@ -20,11 +20,13 @@ func Index(ctx *gin.Context) {
 }
 
 func Create(ctx *gin.Context) {
-	body := helper.GetJSONBody(ctx)
+	var parser helper.JSONParser
+	parser.GetJSONBody(ctx)
 
-	port, _ := helper.GetJSONInt64(body, "Port")
+	port, _ := parser.GetJSONInt64("Port")
+	host, _ := parser.GetJSONString("Host")
 	results := di.Container.DB.
-		Where(&models.Server{Host: helper.GetJSONString(body, "Host"), Port: uint(port)}).
+		Where(&models.Server{Host: host, Port: uint(port)}).
 		First(&models.Server{})
 
 	if results.RowsAffected > 0 {
@@ -32,12 +34,16 @@ func Create(ctx *gin.Context) {
 		return
 	}
 
+	name, _ := parser.GetJSONString("Name")
+	enableSSL, _ := parser.GetJSONBool("EnableSSL")
+	enable, _ := parser.GetJSONBool("Enable")
+
 	obj := models.Server{
-		Name: helper.GetJSONString(body, "Name"),
-		Host: helper.GetJSONString(body, "Host"),
+		Name: name,
+		Host: host,
 		Port: uint(port),
-		EnableSSL: helper.GetJSONBool(body, "EnableSSL"),
-		Enable: helper.GetJSONBool(body, "Enable"),
+		EnableSSL: enableSSL,
+		Enable: enable,
 	}
 	results = di.Container.DB.Create(&obj)
 	if results.Error != nil {
@@ -94,14 +100,20 @@ func Update(ctx *gin.Context) {
 		return
 	}
 
-	body := helper.GetJSONBody(ctx)
-	port, _ := helper.GetJSONInt64(body, "Port")
+	var parser helper.JSONParser
+	parser.GetJSONBody(ctx)
 
-	obj.Name = helper.GetJSONString(body, "Name")
-	obj.Host = helper.GetJSONString(body, "Host")
+	port, _ := parser.GetJSONInt64("Port")
+	host, _ := parser.GetJSONString("Host")
+	name, _ := parser.GetJSONString("Name")
+	enableSSL, _ := parser.GetJSONBool("EnableSSL")
+	enable, _ := parser.GetJSONBool("Enable")
+
+	obj.Name = name
+	obj.Host = host
 	obj.Port = uint(port)
-	obj.EnableSSL = helper.GetJSONBool(body, "EnableSSL")
-	obj.Enable = helper.GetJSONBool(body, "Enable")
+	obj.EnableSSL = enableSSL
+	obj.Enable = enable
 
 	results = di.Container.DB.Save(&obj)
 

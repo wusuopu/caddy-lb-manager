@@ -7,6 +7,7 @@ import (
 )
 
 func InitCaddyfile(r *gin.RouterGroup) {
-	r.GET("/", caddyfile.Index)
+	r.GET("/config", caddyfile.Index)
 	r.POST("/reload", caddyfile.Reload)
+	r.GET("/certificates", caddyfile.ListCertificate)
 }

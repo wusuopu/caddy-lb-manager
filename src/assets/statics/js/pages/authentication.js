@@ -56,7 +56,6 @@ export default {
     },
     handleEdit (row) {
       const data = _.assign({}, row)
-      data.Port = Number(data.Port)
       this.form.data = data
 
       this.form.type = 'update'
@@ -128,15 +127,15 @@ export default {
       <template #default>
         <div>
           <el-form ref="form" :model="form.data" :rules="form.rules" label-position="top">
-            <el-form-item label="Name" prop="Name">
+            <el-form-item label="Name" prop="Name" required>
               <el-input v-model="form.data.Name" />
             </el-form-item>
 
-            <el-form-item label="Username" prop="Username">
+            <el-form-item label="Username" prop="Username" required>
               <el-input v-model="form.data.Username" />
             </el-form-item>
 
-            <el-form-item label="Password" prop="Password">
+            <el-form-item label="Password" prop="Password" required>
               <el-input v-model="form.data.Password" type="password" />
             </el-form-item>
           </el-form>
