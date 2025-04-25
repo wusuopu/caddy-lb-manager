@@ -53,4 +53,5 @@ func Init(router *gin.RouterGroup, engine *gin.Engine, embededFiles embed.FS) {
 	InitRoute(serverGroup)
 	InitUpstream(router.Group("/upstreams"))
 	InitCaddyfile(router.Group("/caddyfile"))
+	InitAuthentication(router.Group("/authentications"))
 }

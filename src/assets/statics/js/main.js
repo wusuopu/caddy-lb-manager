@@ -5,6 +5,7 @@ import HomePage from './pages/home.js'
 import ServerListPage from './pages/server.js'
 import RoutesListPage from './pages/route.js'
 import UpstreamListPage from './pages/upstream.js'
+import AuthenticationListPage from './pages/authentication.js'
 import CertificateListPage from './pages/certificates.js'
 import CaddyfilePage from './pages/caddyfile.js'
 
@@ -21,8 +22,9 @@ const app = createApp({
           <el-menu mode="horizontal" :router="true" :default-active="$route.name">
             <el-menu-item index="Home" route="/">Dashboard</el-menu-item>
             <el-menu-item index="Servers" route="/servers">Servers</el-menu-item>
-            <el-menu-item index="Routes" route="/upstreams">Upstreams</el-menu-item>
-            <el-menu-item index="Upstreams" route="/certificates">SSL Certificates</el-menu-item>
+            <el-menu-item index="Upstreams" route="/upstreams">Upstreams</el-menu-item>
+            <el-menu-item index="Authentication" route="/authentications">Authentications</el-menu-item>
+            <el-menu-item index="Certificates" route="/certificates">SSL Certificates</el-menu-item>
             <el-menu-item index="Caddyfile" route="/caddyfile">Caddyfile</el-menu-item>
           </el-menu>
         </div>
@@ -67,6 +69,11 @@ const router = createRouter({
       path: '/upstreams',
       name: 'Upstreams',
       component: UpstreamListPage,
+    },
+    {
+      path: '/authentications',
+      name: 'Authentications',
+      component: AuthenticationListPage,
     },
     {
       path: '/certificates',

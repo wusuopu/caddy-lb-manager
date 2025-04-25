@@ -9,6 +9,8 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type CaddyfileService struct {
@@ -91,4 +93,13 @@ func (c *CaddyfileService) Validate(file string) (bool, error) {
 		return false, fmt.Errorf("%s", results[len(results) - 1])
 	}
 	return true, nil
+}
+
+func (c *CaddyfileService) HashPassword (password string) (string, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+
+	return string(hashedPassword), nil
 }
