@@ -6,12 +6,35 @@ import (
 	"app/routes"
 	"embed"
 	"fmt"
+	"html/template"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/itchyny/timefmt-go"
 )
 
 func InitRoutes(e *gin.Engine, embededFiles embed.FS) {
+	// 静态文件
+	if config.DEBUG {
+		e.Static("/statics", "./assets/statics")
+		e.LoadHTMLFiles("./assets/index.html")
+	} else {
+		e.GET("/statics/*filepath", func(ctx *gin.Context) {
+			ctx.FileFromFS("assets/statics/" + ctx.Param("filepath"), http.FS(embededFiles))
+		})
+
+		rootTemplate := template.New("").Funcs(e.FuncMap)
+		templ := template.Must(rootTemplate, func () error {
+			_, err := rootTemplate.ParseFS(embededFiles, "assets/index.html")
+			if err != nil {
+				return err
+			}
+			return nil
+		}())
+		e.SetHTMLTemplate(templ)
+	}
+
+
 	e.Use(gin.LoggerWithFormatter(func (param gin.LogFormatterParams) string {
 		headers := "{"
 		for k, v := range param.Request.Header {

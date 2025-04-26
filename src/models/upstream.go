@@ -11,3 +11,7 @@ type UpStream struct {
 	Scheme			string						`gorm:"type:varchar(20);"`		// eg: https://
 	Address			string						`gorm:"type:varchar(300);"`		// host:port
 }
+
+func (u *UpStream) GetAddress() string {
+	return u.Scheme + u.Address
+}

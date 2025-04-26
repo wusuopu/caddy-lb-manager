@@ -1,10 +1,13 @@
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { Plus, Delete, } from '@element-plus/icons-vue'
 import utils from '../utils/index.js'
-import upstream from './upstream.js'
-import authentication from './authentication.js'
 
 export default {
   name: 'RoutesListPage',
+  components: {
+    Plus,
+    Delete,
+  },
   data () {
     return {
       loading: false,
@@ -82,15 +85,29 @@ export default {
       return utils.datetimeFormat(cellValue)
     },
     upstreamFormat (row, column, cellValue, index) {
+      if (!cellValue) { return '' }
       return `(${cellValue}) ${_.get(_.find(this.upstreams, {ID: cellValue}), "Name", "")}`
     },
     authenticationFormat (row, column, cellValue, index) {
+      if (!cellValue) { return '' }
       return `(${cellValue}) ${_.get(_.find(this.authentications, {ID: cellValue}), "Name", "")}`
+    },
+    headerFormat (row, column, cellValue, index) {
+      return JSON.stringify(cellValue)
+    },
+    appendHeaderItem (headers) {
+      headers.push({key: '', value: ''})
+    },
+    removeHeaderItem (headers, index) {
+      headers.splice(index, 1)
     },
     handleEdit (row) {
       const data = _.assign({}, row)
       data.Methods = _.filter(_.split(data.Methods, ','), method => !!method)
-      if (_.isEmpty(data.Header)) { data.Header = [] }
+      if (_.isEmpty(data.HeaderUp)) { data.HeaderUp = [] }
+      if (_.isEmpty(data.HeaderDown)) { data.HeaderDown = [] }
+      if (!data.AuthenticationId) { data.AuthenticationId = null }
+      if (!data.UpStreamId) { data.UpStreamId = null }
       this.form.data = data
 
       this.form.type = 'update'
@@ -101,7 +118,8 @@ export default {
       this.form.data = {
         Name: '',
         Methods: [],
-        Header: [],
+        HeaderUp: [],
+        HeaderDown: [],
         Path: '',
         StripPath: false,
         UpStreamId: null,
@@ -123,6 +141,8 @@ export default {
         this.form.loading = true
         const payload = _.assign({}, this.form.data)
         payload.Methods = _.join(_.filter(payload.Methods, method => !!method), ',')
+        payload.HeaderUp = _.filter(payload.HeaderUp, header => !!_.trim(_.get(header, 'key', '')))
+        payload.HeaderDown = _.filter(payload.HeaderDown, header => !!_.trim(_.get(header, 'key', '')))
 
         if (this.form.type === 'create') {
           await axios.post(`/api/v1/servers/${this.$route.params.id}/routes`, payload)
@@ -168,10 +188,11 @@ export default {
       <el-table :data="list" border stripe style="width: 100%">
         <el-table-column prop="ID" label="ID" width="80" />
         <el-table-column prop="Name" label="Name" />
-        <el-table-column prop="Methods" label="Methods" />
         <el-table-column prop="Path" label="Path" />
         <el-table-column prop="StripPath" label="StripPath" />
         <el-table-column prop="Enable" label="Enable" />
+        <el-table-column prop="HeaderUp" label="HeaderUp" :formatter="headerFormat" width="300" />
+        <el-table-column prop="HeaderDown" label="HeaderDown" :formatter="headerFormat" width="300" />
 
         <el-table-column prop="UpStreamId" label="UpStream" width="120" :formatter="upstreamFormat" />
         <el-table-column prop="AuthenticationId" label="Authentication" width="140" :formatter="authenticationFormat" />
@@ -199,7 +220,7 @@ export default {
               <el-input v-model="form.data.Name" placeholder="Alias Name" />
             </el-form-item>
 
-            <el-form-item label="Methods" prop="Methods">
+            <el-form-item v-if="false" label="Methods" prop="Methods">
               <el-select v-model="form.data.Methods" placeholder="Select methods" multiple clearable>
                 <el-option label="GET" value="GET" />
                 <el-option label="POST" value="POST" />
@@ -224,6 +245,44 @@ export default {
                 <el-option v-for="item in authenticationOptions" :key="item.value" :label="item.label" :value="item.value" />
               </el-select>
             </el-form-item>
+
+            <div>
+              <div class="flex mb-2 items-center justify-between">
+                <p class="text-sm">HeaderUp Config</p>
+                <el-button type="primary" size="small" @click="appendHeaderItem(form.data.HeaderUp)">
+                  <el-icon><Plus /></el-icon>
+                </el-button>
+              </div>
+              <div v-for="(item, index) in form.data.HeaderUp" :key="index" class="flex gap-1">
+                <el-form-item label="" :prop="'HeaderUp.' + index + '.key'">
+                  <el-input v-model="item.key" placeholder="Header Field" />
+                </el-form-item>
+                <el-form-item label="" :prop="'HeaderUp.' + index + '.value'">
+                  <el-input v-model="item.value" placeholder="Header value" />
+                </el-form-item>
+                <el-button type="danger" size="small" @click="removeHeaderItem(form.data.HeaderUp, index)">
+                  <el-icon><Delete /></el-icon>
+                </el-button>
+              </div>
+
+              <div class="flex mb-2 items-center justify-between">
+                <p class="text-sm">HeaderDown Config</p>
+                <el-button type="primary" size="small" @click="appendHeaderItem(form.data.HeaderDown)">
+                  <el-icon><Plus /></el-icon>
+                </el-button>
+              </div>
+              <div v-for="(item, index) in form.data.HeaderDown" :key="index" class="flex gap-1">
+                <el-form-item label="" :prop="'HeaderDown.' + index + '.key'">
+                  <el-input v-model="item.key" placeholder="Header Field" />
+                </el-form-item>
+                <el-form-item label="" :prop="'HeaderDown.' + index + '.value'">
+                  <el-input v-model="item.value" placeholder="Header value" />
+                </el-form-item>
+                <el-button type="danger" size="small" @click="removeHeaderItem(form.data.HeaderDown, index)">
+                  <el-icon><Delete /></el-icon>
+                </el-button>
+              </div>
+            </div>
 
             <el-form-item label="StripPath" prop="StripPath">
               <el-checkbox v-model="form.data.StripPath" />

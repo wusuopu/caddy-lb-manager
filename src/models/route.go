@@ -11,7 +11,8 @@ type Route struct {
 	Name				string						`gorm:"type:varchar(100);"`
 	Methods			string						`gorm:"type:varchar(100);"`		// GET,POST,....
 	Path				string						`gorm:"type:varchar(300);"`
-	Header			datatypes.JSON			// {[field]: {value: string, isReg: bool}}
+	HeaderUp			datatypes.JSON			// []{key: string, value: string}
+	HeaderDown		datatypes.JSON			// []{key: string, value: string}
 	StripPath		bool
 	UpStreamId	uint
 	UpStream		UpStream

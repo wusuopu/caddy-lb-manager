@@ -6,6 +6,7 @@ import (
 	"app/models"
 	"app/types"
 	"app/utils/helper"
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -20,6 +21,55 @@ import (
 type CaddyfileService struct {
 }
 
+
+func (c *CaddyfileService) generateRouteCaddyfile(route models.Route) (string) {
+	handle := "handle"
+	path := route.Path
+	if route.StripPath {
+		handle = "handle_path"
+		// handle_path is an exact match by default, not a prefix match. You must append a * for a fast prefix match
+		if !strings.HasSuffix(path, "*") {
+			if !strings.HasSuffix(path, "/") {
+				path += "/"
+			}
+			path += "*"
+		}
+	}
+	auth := "\n"
+	if route.Authentication.Username != "" && route.Authentication.HashedPw != "" {
+		auth = fmt.Sprintf("\tbasic_auth {\n\t\t\t%s %s\n\t\t}\n", route.Authentication.Username, route.Authentication.HashedPw)
+	}
+
+	// handle_path <path> {
+	//     basic_auth {
+	//         <username> <hashed_password>
+	//     }
+	//     reverse_proxy <upstream> {
+	//         header_up
+	//         header_down
+	//     }
+	// }
+	var headerConfig []string
+	if route.HeaderUp != nil {
+		var HeaderUp []map[string]interface{}
+		json.Unmarshal(route.HeaderUp, &HeaderUp)
+		for _, item := range HeaderUp {
+			headerConfig = append(headerConfig, fmt.Sprintf("header_up %s \"%s\"", item["key"], item["value"]))
+		}
+	}
+	if route.HeaderDown != nil {
+		var HeaderDown []map[string]interface{}
+		json.Unmarshal(route.HeaderDown, &HeaderDown)
+		for _, item := range HeaderDown {
+			headerConfig = append(headerConfig, fmt.Sprintf("header_down %s \"%s\"", item["key"], item["value"]))
+		}
+	}
+	headerContent := "\t\t\t" + strings.Join(headerConfig, "\n\t\t\t") + "\n"
+
+	content := fmt.Sprintf("\t%s %s {\n\t%s\t\treverse_proxy %s {\n%s\t\t}\n\t}", handle, path, auth, route.UpStream.GetAddress(), headerContent)
+	return content
+}
+
 // Generate Caddyfile content from database
 func (c *CaddyfileService) GenCaddyfile() (string, error) {
 	var serverList []models.Server
@@ -31,8 +81,26 @@ func (c *CaddyfileService) GenCaddyfile() (string, error) {
 
 	var content []string
 	for _, serverItem := range serverList {
-		routes := ""
-		config := fmt.Sprintf("%s {\n\t%s\n}", serverItem.GetAddress(), routes)
+		if !serverItem.Enable {
+			continue
+		}
+
+		var routeList []models.Route
+		di.Container.DB.Preload("UpStream").Preload("Authentication").Where("server_id = ?", serverItem.ID).Find(&routeList)
+		var routeContent []string
+		for _, routeItem := range routeList {
+			if !routeItem.Enable {
+				continue
+			}
+			if routeItem.UpStream.ID == 0 {
+				continue
+			}
+
+			routeContent = append(routeContent, c.generateRouteCaddyfile(routeItem))
+		}
+
+		routes := strings.Join(routeContent, "\n")
+		config := fmt.Sprintf("%s {\n%s\n}", serverItem.GetAddress(), routes)
 		content = append(content, config)
 	}
   return strings.Join(content, "\n"), nil

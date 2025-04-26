@@ -36,7 +36,8 @@ func Create(ctx *gin.Context) {
 	name, _ := parser.GetJSONString("Name")
 	methods, _ := parser.GetJSONString("Methods")
 	path, _ := parser.GetJSONString("Path")
-	header := parser.GetJSONItem("Header").MarshalTo(nil)
+	headerUp := parser.GetJSONItem("HeaderUp").MarshalTo(nil)
+	headerDown := parser.GetJSONItem("HeaderDown").MarshalTo(nil)
 	stripPath, _ := parser.GetJSONBool("StripPath")
 	enable, _ := parser.GetJSONBool("Enable")
 	upstreamId, _ := parser.GetJSONInt64("UpStreamId")
@@ -46,7 +47,8 @@ func Create(ctx *gin.Context) {
 		Name: name,
 		Methods: methods,
 		Path: path,
-		Header: header,
+		HeaderUp: headerUp,
+		HeaderDown: headerDown,
 		StripPath: stripPath,
 		Enable: enable,
 		UpStreamId: uint(upstreamId),
@@ -99,7 +101,8 @@ func Update(ctx *gin.Context) {
 	name, _ := parser.GetJSONString("Name")
 	methods, _ := parser.GetJSONString("Methods")
 	path, _ := parser.GetJSONString("Path")
-	header := parser.GetJSONItem("Header").MarshalTo(nil)
+	headerUp := parser.GetJSONItem("HeaderUp").MarshalTo(nil)
+	headerDown := parser.GetJSONItem("HeaderDown").MarshalTo(nil)
 	stripPath, _ := parser.GetJSONBool("StripPath")
 	enable, _ := parser.GetJSONBool("Enable")
 	upstreamId, _ := parser.GetJSONInt64("UpStreamId")
@@ -108,7 +111,8 @@ func Update(ctx *gin.Context) {
 	obj.Name = name
 	obj.Methods = methods
 	obj.Path = path
-	obj.Header = header
+	obj.HeaderUp = headerUp
+	obj.HeaderDown = headerDown
 	obj.StripPath = stripPath
 	obj.Enable = enable
 	obj.UpStreamId = uint(upstreamId)
