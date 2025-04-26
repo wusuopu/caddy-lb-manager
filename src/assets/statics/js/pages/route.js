@@ -21,7 +21,13 @@ export default {
         data: {},
         rules: {},
         type: '', // create or update
-      }
+      },
+      sortable: {
+        instance: null,
+        tableKey: 1,
+        enable: false,
+        ids: [],
+      },
     }
   },
   async mounted () {
@@ -29,6 +35,11 @@ export default {
     await this.fetchRelationData()
     await this.fetchList()
     this.loading = false
+  },
+  beforeDestroy () {
+    if (this.sortable.instance) {
+      this.sortable.instance.destroy()
+    }
   },
   methods: {
     async fetchRelationData () {
@@ -55,9 +66,57 @@ export default {
       try {
         const { data } = await axios.get(`/api/v1/servers/${this.$route.params.id}/routes`)
         this.list = data.Data
+        this.sortable.tableKey++
+        if (this.sortable.instance) {
+          this.sortable.instance.destroy()
+          this.sortable.instance = null
+          this.sortable.enable = false
+        }
+        this.sortable.ids = _.map(this.list, 'ID')
       } catch (error) {
         ElMessage.error("fetch routes data failed")
       }
+    },
+    toggleSort () {
+      this.sortable.enable = !this.sortable.enable
+      if (this.sortable.enable) {
+        this.sortable.instance = Sortable.create(
+          document.querySelector('.el-table__body-wrapper tbody'),
+          {
+            animation: 500,
+            sort: true,
+            //拖拽结束后触发
+            onEnd: (event) => {
+              console.log('onEnd:', event);
+              if (event.newIndex === event.oldIndex) {
+                return
+              }
+              const value = this.sortable.ids[event.oldIndex]
+              const newIds = _.concat([], this.sortable.ids)
+              // remove from old position
+              newIds.splice(event.oldIndex, 1)
+              // insert to new position
+              newIds.splice(event.newIndex, 0, value)
+              this.sortable.ids = newIds
+              console.log('new sort:', this.sortable.ids)
+            },
+          }
+        )
+      } else {
+        this.sortable.instance && this.sortable.instance.destroy()
+        this.sortable.instance = null
+        this.sortable.tableKey++
+      }
+    },
+    async handleChangeSort () {
+      this.loading = true
+      try {
+        const payload = { ids: this.sortable.ids }
+        await axios.put(`/api/v1/servers/${this.$route.params.id}/routes/sort`, payload)
+        await this.fetchList()
+      } catch (error) {
+      }
+      this.loading = false
     },
     async handleDelete (row) {
       try {
@@ -183,14 +242,26 @@ export default {
     <div v-loading="loading">
       <div class="flex justify-between mb-2 p-2 bg-white">
         <p>Server: <span class="font-bold">{{ server.Name }}</span> {{ server.Host}}:{{ server.Port }}</p>
-        <el-button type="primary" @click="handleCreate">Add Route</el-button>
+        <div>
+          <el-button @click="toggleSort">{{ sortable.enable ? "Reset Sort" : "Sort Rules" }}</el-button>
+          <el-button v-if="sortable.enable" type="danger" @click="handleChangeSort">Apply Sort</el-button>
+          <el-button v-if="!sortable.enable" type="primary" @click="handleCreate">Add Route</el-button>
+        </div>
       </div>
-      <el-table :data="list" border stripe style="width: 100%">
+
+      <el-alert v-if="sortable.enable" title="Drag to Rearrange Route rules" type="success" :closable="false" />
+
+      <el-table :key="sortable.tableKey" :data="list" border stripe style="width: 100%" row-key="ID">
         <el-table-column prop="ID" label="ID" width="80" />
         <el-table-column prop="Name" label="Name" />
         <el-table-column prop="Path" label="Path" />
         <el-table-column prop="StripPath" label="StripPath" />
-        <el-table-column prop="Enable" label="Enable" />
+        <el-table-column prop="Enable" label="Enable">
+          <template #default="scope">
+            <el-tag :type="scope.row.Enable ? 'success' : 'danger'">{{ scope.row.Enable }}</el-tag>
+          </template>
+        </el-table-column>
+
         <el-table-column prop="HeaderUp" label="HeaderUp" :formatter="headerFormat" width="300" />
         <el-table-column prop="HeaderDown" label="HeaderDown" :formatter="headerFormat" width="300" />
 
@@ -201,8 +272,8 @@ export default {
 
         <el-table-column label="Operation" fixed="right" width="180">
           <template #default="scope">
-            <el-button type="danger" @click="handleDelete(scope.row)">Delete</el-button>
-            <el-button type="primary" @click="handleEdit(scope.row)">Edit</el-button>
+            <el-button :disabled="sortable.enable" type="danger" @click="handleDelete(scope.row)">Delete</el-button>
+            <el-button :disabled="sortable.enable" type="primary" @click="handleEdit(scope.row)">Edit</el-button>
           </template>
         </el-table-column>
       </el-table>

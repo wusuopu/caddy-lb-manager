@@ -128,11 +128,18 @@ func (parser *JSONParser) ParseJSONQuery(qs string) *fastjson.Value {
 // lodash 风格的 GET 操作
 func (parser *JSONParser) GetJSONInt64(keys string) (int64, error) {
 	val := parser.Value
-	k := strings.Split(keys, ".")
-	if !val.Exists(k...) {
-		return 0, fmt.Errorf("key %s not exists", keys)
+	
+	var item *fastjson.Value
+	if keys == "" {
+		item = val
+	} else {
+		k := strings.Split(keys, ".")
+		if !val.Exists(k...) {
+			return 0, fmt.Errorf("key %s not exists", keys)
+		}
+		item = val.Get(k...)
 	}
-	item := val.Get(k...)
+
 	if item.Type() == fastjson.TypeNumber {
 		return item.Int64()
 	}

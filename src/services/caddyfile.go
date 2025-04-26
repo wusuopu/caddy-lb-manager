@@ -86,7 +86,7 @@ func (c *CaddyfileService) GenCaddyfile() (string, error) {
 		}
 
 		var routeList []models.Route
-		di.Container.DB.Preload("UpStream").Preload("Authentication").Where("server_id = ?", serverItem.ID).Find(&routeList)
+		di.Container.DB.Preload("UpStream").Preload("Authentication").Where("server_id = ?", serverItem.ID).Order("sort ASC").Order("id ASC").Find(&routeList)
 		var routeContent []string
 		for _, routeItem := range routeList {
 			if !routeItem.Enable {

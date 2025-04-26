@@ -20,4 +20,5 @@ type Route struct {
 	ServerId		uint
 	AuthenticationId	uint
 	Authentication Authentication
+	Sort	uint
 }
