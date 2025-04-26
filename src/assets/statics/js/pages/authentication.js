@@ -42,6 +42,7 @@ export default {
       try {
         this.loading = true
         await axios.delete(`/api/v1/authentications/${row.ID}`)
+        ElMessage.success('config has changed. please goto Caddyfile page reload caddy config')
       } catch (error) {
         ElMessage.error(error.response.data.Error)
         return
@@ -87,6 +88,7 @@ export default {
         } else {
           await axios.put(`/api/v1/authentications/${this.form.data.ID}`, this.form.data)
         }
+        ElMessage.success('config has changed. please goto Caddyfile page reload caddy config')
       } catch (error) {
         ElMessage.error(error.response.data.Error)
         return
@@ -121,22 +123,22 @@ export default {
 
     <el-drawer v-model="form.showDrawer" direction="rtl">
       <template #header>
-        <h4 v-if="form.type === 'update'">Update server #{{ form.data.ID }}</h4>
-        <h4 v-else>Create server</h4>
+        <h4 v-if="form.type === 'update'">Update authentication #{{ form.data.ID }}</h4>
+        <h4 v-else>Create authentication</h4>
       </template>
       <template #default>
         <div>
           <el-form ref="form" :model="form.data" :rules="form.rules" label-position="top">
             <el-form-item label="Name" prop="Name" required>
-              <el-input v-model="form.data.Name" />
+              <el-input v-model="form.data.Name" placeholder="Alias Name" />
             </el-form-item>
 
             <el-form-item label="Username" prop="Username" required>
-              <el-input v-model="form.data.Username" />
+              <el-input v-model="form.data.Username" placeholder="username" />
             </el-form-item>
 
             <el-form-item label="Password" prop="Password" required>
-              <el-input v-model="form.data.Password" type="password" />
+              <el-input v-model="form.data.Password" type="password" placeholder="password" />
             </el-form-item>
           </el-form>
         </div>

@@ -189,10 +189,10 @@ func (parser *JSONParser) GetJSONString(keys string) (string, error) {
 
 func (parser *JSONParser) GetJSONBool(keys string) (bool, error) {
 	v := parser.GetJSONItem(keys)
-	if v.Type() == fastjson.TypeTrue {
+	if v != nil && v.Type() == fastjson.TypeTrue {
 		return true, nil
 	}
-	if v.Type() == fastjson.TypeFalse {
+	if v != nil && v.Type() == fastjson.TypeFalse {
 		return false, nil
 	}
 	return false, fmt.Errorf("key %s in not bool", keys)

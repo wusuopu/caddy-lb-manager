@@ -12,43 +12,48 @@ import (
 )
 
 // https://gorm.io/docs/migration.html
-// 20250424140453-CreateRoute
+// 20250425144410-AddFieldToRoute
 
 func init() {
-	goose.AddMigrationContext(up20250424140453, down20250424140453)
+	goose.AddMigrationContext(up20250425144410, down20250425144410)
 }
-func createModel20250424140453 () interface{} {
+func createModel20250425144410 () interface{} {
 	type Route struct{
 		gorm.Model
 		Name				string						`gorm:"type:varchar(100);"`
-		Methods			string						`gorm:"type:varchar(100);"`
+		Methods			string						`gorm:"type:varchar(100);"`		// GET,POST,....
 		Path				string						`gorm:"type:varchar(300);"`
 		Header			datatypes.JSON			// {[field]: {value: string, isReg: bool}}
 		StripPath		bool
 		UpStreamId	uint
 		UpStream		models.UpStream
 		Enable			bool
+		ServerId		uint
+		AuthenticationId	uint
+		Authentication models.Authentication
 	}
 	return &Route{}
 }
-func up20250424140453(ctx context.Context, tx *sql.Tx) error {
+func up20250425144410(ctx context.Context, tx *sql.Tx) error {
 	return utils.Try(func() {
 		db := getDB(ctx, tx)
 
 		// This code is executed when the migration is applied.
 		migrator := db.Migrator()
-		model := createModel20250424140453()
-		createTable(migrator, model)
+		model := createModel20250425144410()
+		addTableColumn(migrator, model, "ServerId")
+		addTableColumn(migrator, model, "AuthenticationId")
 	})
 }
 
-func down20250424140453(ctx context.Context, tx *sql.Tx) error {
+func down20250425144410(ctx context.Context, tx *sql.Tx) error {
 	return utils.Try(func() {
 		db := getDB(ctx, tx)
 
 		// This code is executed when the migration is rolled back.
 		migrator := db.Migrator()
-		model := createModel20250424140453()
-		dropTable(migrator, model)
+		model := createModel20250425144410()
+		dropTableColumn(migrator, model, "ServerId")
+		dropTableColumn(migrator, model, "AuthenticationId")
 	})
 }

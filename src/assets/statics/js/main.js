@@ -23,7 +23,7 @@ const app = createApp({
             <el-menu-item index="Home" route="/">Dashboard</el-menu-item>
             <el-menu-item index="Servers" route="/servers">Servers</el-menu-item>
             <el-menu-item index="Upstreams" route="/upstreams">Upstreams</el-menu-item>
-            <el-menu-item index="Authentication" route="/authentications">Authentications</el-menu-item>
+            <el-menu-item index="Authentications" route="/authentications">Authentications</el-menu-item>
             <el-menu-item index="Certificates" route="/certificates">SSL Certificates</el-menu-item>
             <el-menu-item index="Caddyfile" route="/caddyfile">Caddyfile</el-menu-item>
           </el-menu>

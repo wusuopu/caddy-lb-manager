@@ -45,7 +45,7 @@ func Delete(ctx *gin.Context) {
 	results := di.Container.DB.First(&obj, ctx.Param("id"))
 	if results.Error != nil {
 		if errors.Is(results.Error, gorm.ErrRecordNotFound) {
-			schemas.MakeErrorResponse(ctx, "Authentication not found", 404)
+			schemas.MakeErrorResponse(ctx, "UpStream not found", 404)
 		} else {
 			schemas.MakeErrorResponse(ctx, results.Error, 500)
 		}
@@ -65,7 +65,7 @@ func Update(ctx *gin.Context) {
 	results := di.Container.DB.First(&obj, ctx.Param("id"))
 	if results.Error != nil {
 		if errors.Is(results.Error, gorm.ErrRecordNotFound) {
-			schemas.MakeErrorResponse(ctx, "Authentication not found", 404)
+			schemas.MakeErrorResponse(ctx, "UpStream not found", 404)
 		} else {
 			schemas.MakeErrorResponse(ctx, results.Error, 500)
 		}

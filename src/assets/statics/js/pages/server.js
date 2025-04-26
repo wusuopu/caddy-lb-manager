@@ -68,6 +68,7 @@ export default {
       try {
         this.loading = true
         await axios.delete(`/api/v1/servers/${row.ID}`)
+        ElMessage.success('config has changed. please goto Caddyfile page reload caddy config')
       } catch (error) {
         ElMessage.error(error.response.data.Error)
         return
@@ -123,6 +124,7 @@ export default {
         } else {
           await axios.put(`/api/v1/servers/${this.form.data.ID}`, this.form.data)
         }
+        ElMessage.success('config has changed. please goto Caddyfile page reload caddy config')
       } catch (error) {
         ElMessage.error(error.response.data.Error)
         return
@@ -132,6 +134,9 @@ export default {
 
       this.form.showDrawer = false
       await this.fetchList()
+    },
+    gotoRoutes (server) {
+      this.$router.push(`/servers/${server.ID}/routes`)
     },
   },
   template: `
@@ -148,10 +153,11 @@ export default {
         <el-table-column prop="Enable" label="Enable" width="100" />
         <el-table-column prop="CreatedAt" label="CreatedAt" :formatter="datetimeFormat" />
         <el-table-column prop="UpdatedAt" label="UpdatedAt" :formatter="datetimeFormat" />
-        <el-table-column label="Operation" fixed="right" width="180">
+        <el-table-column label="Operation" fixed="right" width="280">
           <template #default="scope">
             <el-button type="danger" @click="handleDelete(scope.row)">Delete</el-button>
             <el-button type="primary" @click="handleEdit(scope.row)">Edit</el-button>
+            <el-button @click="gotoRoutes(scope.row)">Routes</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -166,11 +172,11 @@ export default {
         <div>
           <el-form ref="form" :model="form.data" :rules="form.rules" label-position="top">
             <el-form-item label="Name" prop="Name">
-              <el-input v-model="form.data.Name" />
+              <el-input v-model="form.data.Name" placeholder="Alias Name" />
             </el-form-item>
 
             <el-form-item label="Host" prop="Host">
-              <el-input v-model="form.data.Host" />
+              <el-input v-model="form.data.Host" placeholder="example.com" />
             </el-form-item>
 
             <el-form-item label="Port" prop="Port">
