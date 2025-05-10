@@ -34,6 +34,6 @@ ENV PORT=8080 \
     CADDY_RELOAD_CMD="caddy reload --config" \
     CADDY_TLS_EMAIL=admin@example.com
 
-ENTRYPOINT ["/sbin/tini", '--', 'sh', 'run.sh']
+ENTRYPOINT ["/sbin/tini", "--", "sh", "run.sh"]
 
 CMD ["start_all"]

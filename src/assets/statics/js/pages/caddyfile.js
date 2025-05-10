@@ -38,6 +38,7 @@ export default {
       try {
         await axios.post('/api/v1/caddy/reload')
         this.error = ""
+        ElMessage.success("Caddyfile has reloaded")
       } catch (error) {
         this.error = error.response.data.Error
         ElMessage.error("reload Caddyfile failed")

@@ -27,6 +27,9 @@ start_all () {
 }
 
 init_db () {
+  if [[ "$DATABASE_TYPE" == "sqlite" ]]; then
+    ./goose db:create
+  fi
   ./goose up
 }
 

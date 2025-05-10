@@ -34,6 +34,11 @@ func (c *CaddyfileService) generateRouteCaddyfile(route models.Route) (string) {
 			}
 			path += "*"
 		}
+	} else {
+		// 以 `path` 开头的路由
+		if strings.HasSuffix(path, "/") {
+			path += "*"
+		}
 	}
 	auth := "\n"
 	if route.Authentication.Username != "" && route.Authentication.HashedPw != "" {
