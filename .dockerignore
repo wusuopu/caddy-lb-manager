@@ -11,4 +11,5 @@ src/notes/
 src/app
 src/goose
 src/data/
+src/dist/
 tmp/

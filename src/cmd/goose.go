@@ -2,6 +2,7 @@ package main
 
 import (
 	"app/initialize"
+	"app/utils"
 	"bufio"
 	"context"
 	"flag"
@@ -9,6 +10,7 @@ import (
 	"log"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
 	"text/template"
 
@@ -32,6 +34,8 @@ func confirm(msg string) bool {
 }
 func commandDBCreate(driver, dsn string) bool {
 	if driver == "sqlite" {
+		dbFolder := filepath.Dir(dsn)
+		utils.MakeSureDir(dbFolder)
 		return true
 	}
 	db, dbName, err := initialize.ConnectMySQLWithoutDB(dsn)

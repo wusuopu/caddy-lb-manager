@@ -103,7 +103,12 @@ func (c *CaddyfileService) GenCaddyfile() (string, error) {
 		config := fmt.Sprintf("%s {\n%s\n}", serverItem.GetAddress(), routes)
 		content = append(content, config)
 	}
-  return strings.Join(content, "\n"), nil
+
+	globalOptions := ""
+	if config.Config.Caddy.TLSEmail != "" {
+		globalOptions = fmt.Sprintf("{\n\temail %s\n}\n", config.Config.Caddy.TLSEmail)
+	}
+  return globalOptions + strings.Join(content, "\n"), nil
 }
 
 // caddy service reload config

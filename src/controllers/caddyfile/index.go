@@ -3,6 +3,7 @@ package caddyfile
 import (
 	"app/di"
 	"app/schemas"
+	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -23,6 +24,8 @@ func Reload(ctx *gin.Context) {
 		schemas.MakeErrorResponse(ctx, err, 400)
 		return
 	}
+
+	os.WriteFile("/data/Caddyfile", []byte(content), 0644)
 
 	ret, err := di.Service.CaddyfileService.Reload(content)
 	if ret != true {

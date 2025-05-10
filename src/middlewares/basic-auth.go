@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	"os"
+	"app/config"
 
 	"github.com/gin-gonic/gin"
 )
@@ -9,15 +9,13 @@ import (
 var basicAuth gin.HandlerFunc
 
 func BasicAuthMiddleware(c *gin.Context) {
-	user := os.Getenv("WEBUI_BASIC_AUTH_USER")
-	password := os.Getenv("WEBUI_BASIC_AUTH_PASSWORD")
-	if user == "" || password == "" {
+	if config.Config.Server.Username == "" || config.Config.Server.Password == "" {
 		c.Next()
 		return
 	}
 	if basicAuth == nil {
 		basicAuth = gin.BasicAuth(gin.Accounts{
-			os.Getenv("WEBUI_BASIC_AUTH_USER"): os.Getenv("WEBUI_BASIC_AUTH_PASSWORD"),
+			config.Config.Server.Username: config.Config.Server.Password,
 		})
 	}
 	basicAuth(c)

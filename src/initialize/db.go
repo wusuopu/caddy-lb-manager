@@ -3,9 +3,11 @@ package initialize
 import (
 	"app/config"
 	"app/di"
+	"app/utils"
 	"database/sql"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/glebarez/sqlite"
 	"gorm.io/driver/mysql"
@@ -24,6 +26,8 @@ func InitDB() {
 		})
 	} else {
 		// https://gorm.io/docs/connecting_to_the_database.html#SQLite
+		dbFolder := filepath.Dir(os.Getenv("DATABASE_DSN"))
+		utils.MakeSureDir(dbFolder)
 		dialector = sqlite.Open(os.Getenv("DATABASE_DSN"))
 	}
 	lvl := logger.Error

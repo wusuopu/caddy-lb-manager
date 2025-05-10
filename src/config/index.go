@@ -10,6 +10,8 @@ type IConfig struct {
 		GO_ENV	string
 		BaseUrl	string
 		Version	string
+		Username string
+		Password string
 	}
 	Caddy struct {
 		BinPath		string
@@ -38,6 +40,9 @@ func Load() IConfig {
 	if Config.Server.BaseUrl == "/" {
 		Config.Server.BaseUrl = ""
 	}
+
+	Config.Server.Username = os.Getenv("WEBUI_BASIC_AUTH_USER")
+	Config.Server.Password = os.Getenv("WEBUI_BASIC_AUTH_PASSWORD")
 
 	// Caddy 配置
 	Config.Caddy.BinPath = os.Getenv("CADDY_BIN_PATH")
