@@ -2,6 +2,7 @@ package main
 
 import (
 	"app/config"
+	"app/di"
 	"app/initialize"
 	"context"
 	"embed"
@@ -21,6 +22,24 @@ var embededFiles embed.FS
 func main() {
 	e := gin.New()
 	initialize.Init(e, embededFiles)
+
+	if config.Config.Server.ClusterMode && config.Config.Caddy.ReloadCMD == "" {
+		ticker := time.NewTicker(3 * time.Second)
+		defer ticker.Stop()
+
+		go func () {
+			// 集群模式下，定时刷新配置
+			for {
+				select {
+				case <-ticker.C:
+					_, err := di.Service.CaddyfileService.PullConfigAndReload()
+					if err != nil {
+						log.Printf("pull config error: %v\n", err)
+					}
+				}
+			}
+		}()
+	}
 
 	if gin.Mode() == gin.ReleaseMode {
 		// 生产模块下实现 gracefully shutdown

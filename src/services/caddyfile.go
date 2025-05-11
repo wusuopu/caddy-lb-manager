@@ -13,12 +13,14 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/valyala/fastjson"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type CaddyfileService struct {
+	lastReloadedAt int64
 }
 
 
@@ -114,6 +116,62 @@ func (c *CaddyfileService) GenCaddyfile() (string, error) {
 		globalOptions = fmt.Sprintf("{\n\temail %s\n}\n", config.Config.Caddy.TLSEmail)
 	}
   return globalOptions + strings.Join(content, "\n"), nil
+}
+
+func (c *CaddyfileService) TouchReloadTime() (bool, error) {
+	var setting models.SystemSetting
+	results := di.Container.DB.Where("name = ?", "caddyfile_reload_time").First(&setting)
+
+	setting.Value, _ = json.Marshal(time.Now().UTC().UnixMicro())
+
+	if results.RowsAffected == 0 {
+		setting.Name = "caddyfile_reload_time"
+		results = di.Container.DB.Create(&setting)
+	} else {
+		results = di.Container.DB.Save(&setting)
+	}
+
+	if results.Error != nil {
+		return false, results.Error
+	}
+	c.lastReloadedAt = time.Now().UTC().UnixMicro()
+  return true, nil
+}
+
+func (c *CaddyfileService) PullConfigAndReload() (bool, error) {
+	if c.lastReloadedAt == 0 {
+		// 服务启动时直接使用上次保存的配置
+		fi, err := os.Stat(config.Config.Caddy.ConfigPath)
+		if err == nil && fi.Size() > 0 {
+			c.lastReloadedAt = time.Now().UTC().UnixMicro()
+			return true, nil
+		}
+	}
+
+	row := di.Container.DB.Model(&models.SystemSetting{}).Where("name = ?", "caddyfile_reload_time").Select("value").Row()
+	var value int64
+	err := row.Scan(&value)
+	if err != nil {
+		return false, fmt.Errorf("caddyfile_reload_time not found\n")
+	}
+
+	if c.lastReloadedAt >= value {
+		return true, nil
+	}
+
+	content, err := di.Service.CaddyfileService.GenCaddyfile()
+	if err != nil {
+		return false, err
+	}
+
+	ret, err := di.Service.CaddyfileService.Reload(content)
+	if ret != true {
+		return false, err
+	}
+	c.lastReloadedAt = time.Now().UTC().UnixMicro()
+	fmt.Printf("pull caddyfile reload success\n")
+
+  return true, nil
 }
 
 // caddy service reload config

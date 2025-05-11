@@ -29,8 +29,10 @@ ENV PORT=8080 \
     WEBUI_BASIC_AUTH_USER= \
     WEBUI_BASIC_AUTH_PASSWORD= \
     WEBUI_BASE_URL= \
+    WEBUI_ENABLE_CLUSTER_MODE= \
     CADDY_BIN_PATH=caddy \
     CADDY_DATA_PATH=/data/caddy \
+    CADDY_CONFIG_PATH=/data/Caddyfile \
     CADDY_RELOAD_CMD="caddy reload --config" \
     CADDY_TLS_EMAIL=admin@example.com
 

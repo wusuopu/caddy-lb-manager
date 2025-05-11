@@ -2,8 +2,14 @@
 
 start_lb () {
   config=""
-  if [[ -e "/data/Caddyfile" ]]; then
-    config="--adapter caddyfile --config /data/Caddyfile"
+  caddyfile=$CADDY_CONFIG_PATH
+
+  if [[ -n "$caddyfile"]]; then
+    caddyfile=/data/Caddyfile
+  fi
+
+  if [[ -e "$caddyfile" ]]; then
+    config="--adapter caddyfile --config $caddyfile"
   fi
 
   if [[ "$1" == "true" ]]; then

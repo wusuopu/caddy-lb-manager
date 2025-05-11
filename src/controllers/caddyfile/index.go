@@ -1,6 +1,7 @@
 package caddyfile
 
 import (
+	"app/config"
 	"app/di"
 	"app/schemas"
 	"os"
@@ -25,9 +26,15 @@ func Reload(ctx *gin.Context) {
 		return
 	}
 
-	os.WriteFile("/data/Caddyfile", []byte(content), 0644)
-
 	ret, err := di.Service.CaddyfileService.Reload(content)
+	if ret != true {
+		schemas.MakeErrorResponse(ctx, err, 400)
+		return
+	}
+
+	os.WriteFile(config.Config.Caddy.ConfigPath, []byte(content), 0644)
+
+	ret, err = di.Service.CaddyfileService.TouchReloadTime()
 	if ret != true {
 		schemas.MakeErrorResponse(ctx, err, 400)
 		return
