@@ -27,7 +27,7 @@ type CaddyfileService struct {
 func (c *CaddyfileService) generateRouteCaddyfile(route models.Route) (string) {
 	handle := "handle"
 	path := route.Path
-	if route.StripPath {
+	if route.StripPath && path != "" {
 		handle = "handle_path"
 		// handle_path is an exact match by default, not a prefix match. You must append a * for a fast prefix match
 		if !strings.HasSuffix(path, "*") {

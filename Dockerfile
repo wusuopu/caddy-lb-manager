@@ -33,7 +33,7 @@ ENV PORT=8080 \
     CADDY_BIN_PATH=caddy \
     CADDY_DATA_PATH=/data/caddy \
     CADDY_CONFIG_PATH=/data/Caddyfile \
-    CADDY_RELOAD_CMD="caddy reload --config" \
+    CADDY_RELOAD_CMD= \
     CADDY_TLS_EMAIL=admin@example.com
 
 ENTRYPOINT ["/sbin/tini", "--", "sh", "run.sh"]

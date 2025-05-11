@@ -5,6 +5,7 @@ Dockerfile
 docker-compose.yml
 
 .vscode
+docs/
 src/.env
 src/tmp/
 src/notes/

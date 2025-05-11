@@ -301,7 +301,7 @@ export default {
               </el-select>
             </el-form-item>
 
-            <el-form-item label="Path" prop="Path" required>
+            <el-form-item label="Path" prop="Path">
               <el-input v-model="form.data.Path" placeholder="/base_url" />
             </el-form-item>
 
