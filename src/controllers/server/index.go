@@ -86,6 +86,8 @@ func Delete(ctx *gin.Context) {
 		return
 	}
 
+	di.Container.DB.Unscoped().Delete(&models.Route{}, "server_id = ?", ctx.Param("serverId"))
+
 	schemas.MakeResponse(ctx, obj, nil)
 }
 func Update(ctx *gin.Context) {
